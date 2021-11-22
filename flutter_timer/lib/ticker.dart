@@ -6,5 +6,6 @@ class Ticker {
         .take(ticks);
   }
 
+  //seria o data source
   //o próximo passo é criar um TimerBloc que vai consumir o Ticker
 }

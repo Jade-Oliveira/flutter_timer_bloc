@@ -11,6 +11,7 @@ abstract class TimerState extends Equatable {
 }
 
 //classes que vão representar os estados do bloc
+//independente do estado que estiver precisamos saber o tempo restante, por isso a propriedade bloc no TimerState
 class TimerInitial extends TimerState {
   const TimerInitial(int duration) : super(duration);
 

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-//aqui ficam os eventos que o bloc vai ter que saber como processar
+//aqui ficam os eventos que o bloc vai processar
 abstract class TimerEvent extends Equatable {
   const TimerEvent();
 
