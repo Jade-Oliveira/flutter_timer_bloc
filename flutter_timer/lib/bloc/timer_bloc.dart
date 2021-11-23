@@ -11,6 +11,8 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   static const int _duration = 60;
 
   //definindo uma streamSubscription para o Ticker
+  //*quando observamos uma Stream através do listen, o retorno é uma StreamSubscription
+  //esse subscription fornece eventos ao listener e usa o retorno das funções para manipular eventos, tambpém pode cancelar ou pausar os eventos
   StreamSubscription<int>? _tickerSubscription;
 
   //definindo um estado inicial para o TimerBloc e passando um timer de 60 segundos
@@ -21,6 +23,9 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
           const TimerInitial(_duration),
         ) {
     on<TimerStarted>(_onStarted);
+    on<TimerPaused>(_onPaused);
+    on<TimerResumed>(_onResumed);
+    on<TimerReset>(_onReset);
     on<TimerTicked>(_onTicked);
   }
 
@@ -45,6 +50,28 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
         .listen((duration) => add(TimerTicked(duration: duration)));
   }
 
+  //se o estado no momento da pausa for TimerRunInProgress, pausamos a subscription e mudamos o estado para TimerRunPause pegando o tempo de duração restante
+  void _onPaused(TimerPaused event, Emitter<TimerState> emit) {
+    if (state is TimerRunInProgress) {
+      _tickerSubscription?.pause();
+      emit(TimerRunPause(state.duration));
+    }
+  }
+
+  void _onResumed(TimerResumed resume, Emitter<TimerState> emit) {
+    if (state is TimerRunPause) {
+      _tickerSubscription?.resume();
+      emit(TimerRunInProgress(state.duration));
+    }
+  }
+
+  void _onReset(TimerReset event, Emitter<TimerState> emit) {
+    _tickerSubscription?.cancel();
+    emit(const TimerInitial(_duration));
+  }
+
+  //a cada vez que um evento TimerTicked é recebido e a duração é maior que 0 precisa atualizar o estado do TimerRunInProgress pegando o novo tempo de duração
+  //se for menor ou igual a 0 ele completa o timer, passa para o estado TimerRunComplete
   void _onTicked(TimerTicked event, Emitter<TimerState> emit) {
     emit(
       event.duration > 0
